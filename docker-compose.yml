@@ -2,36 +2,34 @@ version: "3.8"
 
 services:
   backend:
-    build: ./backend
-    container_name: express_server
-    restart: unless-stopped
+    build:
+      context: ./backend
+    container_name: backend
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/mydb
-      - JWT_SECRET=secret_key
-    depends_on:
-      - mongo
-    volumes:
-      - ./backend:/app
+    networks:
+      - app-network
 
   frontend:
-    build: ./frontend
-    container_name: react_app
-    restart: unless-stopped
+    build:
+      context: ./frontend
+    container_name: frontend
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "8080:80"
+    networks:
+      - app-network
 
-  mongo:
-    image: mongo:6.0
-    container_name: mongo_db
-    restart: unless-stopped
-    volumes:
-      - mongo_data:/data/db
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx-server
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - app-network
 
-volumes:
-  mongo_data:
+networks:
+  app-network:
