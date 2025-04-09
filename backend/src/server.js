@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/auth");
 const sequelize = require("./config/db");
 
-dotenv.config();
+dotenv.config({ path: "../.env" });
 
 const app = express();
 app.use(express.json());
