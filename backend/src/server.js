@@ -1,14 +1,30 @@
 const express = require("express");
-const app = express();
+const passport = require("passport");
+const session = require("express-session");
+const dotenv = require("dotenv");
 const authRoutes = require("./routes/auth");
-const cors = require("cors");
+const sequelize = require("./config/db");
 
+dotenv.config();
+
+const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
 
-app.listen(3000, () => {
-  console.log("Сервер запущен на порту 3000");
-});
+sequelize
+  .sync()
+  .then(() => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+  })
+  .catch((err) => console.error("Ошибка синхронизации базы данных:", err));

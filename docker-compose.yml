@@ -1,35 +1,60 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: expressI0n
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "8081:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@pg.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./backend
     container_name: backend
     ports:
       - "3000:3000"
-    networks:
-      - app-network
-
-  frontend:
-    build:
-      context: ./frontend
-    container_name: frontend
-    ports:
-      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
     networks:
       - app-network
 
   nginx:
     build:
-      context: ./nginx
+      context: .
+      dockerfile: ./nginx/Dockerfile
     container_name: nginx-server
     ports:
       - "80:80"
     depends_on:
       - backend
-      - frontend
     networks:
       - app-network
+
+volumes:
+  db-data:
+  pgadmin_data:
 
 networks:
   app-network:
