@@ -1,20 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useLocation, Navigate } from "react-router-dom";
 
 function HomePage() {
-  const [user, setUser] = useState({});
+  const location = useLocation();
+  const login = location.state?.login;
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/user");
-        const data = await response.json();
-        setUser(data);
-      } catch (error) {
-        console.error("Ошибка:", error);
-      }
-    };
-    fetchUser();
-  }, []);
+  if (!login) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <main className="container mx-auto p-10 mt-10">
@@ -25,7 +18,7 @@ function HomePage() {
             alt="wave hand"
             className="w-6 h-6 mr-2"
           />
-          Привет, {user.username}!
+          Привет, {login}!
         </p>
       </div>
     </main>

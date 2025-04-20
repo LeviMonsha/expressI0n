@@ -1,199 +1,126 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 const AuthPage = () => {
-  const [registerFormData, setRegisterFormData] = useState({
-    username: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const [loginFormData, setLoginFormData] = useState({
-    username: "",
-    password: "",
-    rememberMe: false,
-  });
-
-  const [message, setMessage] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+  const [serverErrors, setServerErrors] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleRegisterChange = (e) => {
-    const { name, value } = e.target;
-    setRegisterFormData({ ...registerFormData, [name]: value });
-  };
-
-  const handleLoginChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "rememberMe") {
-      setLoginFormData({ ...loginFormData, rememberMe: e.target.checked });
-    } else {
-      setLoginFormData({ ...loginFormData, [name]: value });
-    }
-  };
-
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    setServerErrors(null);
+    setSuccessMessage("");
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(registerFormData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-      const data = await response.text();
-      setMessage(data);
-      navigate("/home");
-    } catch (error) {
-      console.error("Ошибка:", error);
-    }
-  };
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginFormData),
-      });
-      const data = await response.text();
-      setMessage(data);
-      navigate("/home");
-    } catch (error) {
-      console.error("Ошибка:", error);
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result.errors) {
+          setServerErrors(result.errors);
+        } else if (result.error) {
+          setServerErrors({ general: result.error });
+        } else {
+          setServerErrors({ general: "Ошибка регистрации" });
+        }
+      } else {
+        setSuccessMessage(result.message || "Регистрация прошла успешно!");
+        navigate("/home", { state: { login: data.login } });
+        reset();
+      }
+    } catch (e) {
+      setServerErrors({ general: "Ошибка сети, попробуйте позже." });
+      console.error(e);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-10 mt-20 bg-white rounded-lg shadow-md">
-      <div className="flex flex-wrap justify-center gap-10">
-        <div className="w-full md:w-1/2">
-          <h2 className="text-3xl font-bold mb-5">Регистрация</h2>
-          <form onSubmit={handleRegisterSubmit}>
-            <div className="mb-5">
-              <label
-                className="block text-gray-600 text-sm mb-2"
-                htmlFor="username"
-              >
-                Имя пользователя
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                value={registerFormData.username}
-                onChange={handleRegisterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div className="mb-5">
-              <label
-                className="block text-gray-600 text-sm mb-2"
-                htmlFor="password"
-              >
-                Пароль
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={registerFormData.password}
-                onChange={handleRegisterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div className="mb-5">
-              <label
-                className="block text-gray-600 text-sm mb-2"
-                htmlFor="confirmPassword"
-              >
-                Подтвердите пароль
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={registerFormData.confirmPassword}
-                onChange={handleRegisterChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Зарегистрироваться
-            </button>
-          </form>
-        </div>
-        <div className="w-full md:w-1/2">
-          <h2 className="text-3xl font-bold mb-5">Вход</h2>
-          <form onSubmit={handleLoginSubmit}>
-            <div className="mb-5">
-              <label
-                className="block text-gray-600 text-sm mb-2"
-                htmlFor="login-username"
-              >
-                Имя пользователя
-              </label>
-              <input
-                id="login-username"
-                name="username"
-                type="text"
-                value={loginFormData.username}
-                onChange={handleLoginChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div className="mb-5">
-              <label
-                className="block text-gray-600 text-sm mb-2"
-                htmlFor="login-password"
-              >
-                Пароль
-              </label>
-              <input
-                id="login-password"
-                name="password"
-                type="password"
-                value={loginFormData.password}
-                onChange={handleLoginChange}
-                className="w-full p-2 border border-gray-300 rounded"
-                required
-              />
-            </div>
-            <div className="flex items-center mb-5">
-              <input
-                id="remember-me"
-                name="rememberMe"
-                type="checkbox"
-                checked={loginFormData.rememberMe}
-                onChange={handleLoginChange}
-              />
-              <label className="ml-2" htmlFor="remember-me">
-                Запомнить меня
-              </label>
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Войти
-            </button>
-          </form>
-        </div>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div>
+        <label>Имя:</label>
+        <input type="text" {...register("firstName")} />
+        <p style={{ color: "red" }}>{serverErrors?.firstName}</p>
       </div>
-      {message && (
-        <p className="text-lg text-red-600 text-center mt-5">{message}</p>
+
+      <div>
+        <label>Фамилия:</label>
+        <input type="text" {...register("lastName")} />
+        <p style={{ color: "red" }}>{serverErrors?.lastName}</p>
+      </div>
+
+      <div>
+        <label>Email:</label>
+        <input type="email" {...register("email")} />
+        <p style={{ color: "red" }}>{serverErrors?.email}</p>
+      </div>
+
+      <div>
+        <label>Логин:</label>
+        <input type="text" {...register("login")} />
+        <p style={{ color: "red" }}>{serverErrors?.login}</p>
+      </div>
+
+      <div>
+        <label>Пароль:</label>
+        <input type="password" {...register("password")} />
+        <p style={{ color: "red" }}>{serverErrors?.password}</p>
+      </div>
+
+      <div>
+        <label>Подтверждение пароля:</label>
+        <input type="password" {...register("confirmPassword")} />
+        <p style={{ color: "red" }}>{serverErrors?.confirmPassword}</p>
+      </div>
+
+      <div>
+        <label>
+          <input type="checkbox" {...register("rulesAccepted")} />
+          Принимаю правила...
+        </label>
+        <p style={{ color: "red" }}>{serverErrors?.rulesAccepted}</p>
+      </div>
+
+      <div>
+        <label>Возраст:</label>
+        <select {...register("age")}>
+          <option value="">-- Выберите --</option>
+          <option value="yes">Мне 18 лет</option>
+          <option value="no">Нет 18 лет</option>
+        </select>
+        <p style={{ color: "red" }}>{serverErrors?.age}</p>
+      </div>
+
+      <div>
+        Пол:
+        <label>
+          <input type="radio" value="male" {...register("gender")} />
+          Мужской
+        </label>
+        <label>
+          <input type="radio" value="female" {...register("gender")} />
+          Женский
+        </label>
+        <p style={{ color: "red" }}>{serverErrors?.gender}</p>
+      </div>
+
+      {serverErrors?.general && (
+        <p style={{ color: "red" }}>{serverErrors.general}</p>
       )}
-    </div>
+
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+
+      <button type="submit">Отправить</button>
+    </form>
   );
 };
 

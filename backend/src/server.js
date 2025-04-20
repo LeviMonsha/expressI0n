@@ -1,30 +1,18 @@
 const express = require("express");
-const passport = require("passport");
-const session = require("express-session");
-const dotenv = require("dotenv");
-const authRoutes = require("./routes/auth");
-const sequelize = require("./config/db");
-
-dotenv.config({ path: "../.env" });
+const cors = require("cors");
+const authRouter = require("./routes/auth");
 
 const app = express();
+const port = 3000;
+
+app.use(cors());
 app.use(express.json());
-app.use(
-  session({
-    secret: process.env.SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-app.use(passport.initialize());
-app.use(passport.session());
+app.use("/api/auth", authRouter);
 
-app.use("/auth", authRoutes);
+app.use((req, res, next) => {
+  res.status(404).json({ error: "Not Found" });
+});
 
-sequelize
-  .sync()
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-  })
-  .catch((err) => console.error("Ошибка синхронизации базы данных:", err));
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
