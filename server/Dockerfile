@@ -1,7 +1,7 @@
 FROM node:16-alpine
-WORKDIR /app
+WORKDIR /server
 COPY package*.json ./
 RUN npm install
-COPY src/ src/
+COPY . .
 EXPOSE 3000
-CMD ["node", "src/server.js"]
+CMD ["node", "bin/www"]
