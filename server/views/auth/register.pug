@@ -1,0 +1,66 @@
+extends ../layout
+
+block content
+  h1 Регистрация
+
+  if error
+    p(style="color:red") #{error}
+
+  if errors
+    ul(style="color:red")
+      each err in errors
+        li #{err.msg}
+
+  form(method="POST" action="/auth/register")
+
+    div
+      label(for="firstName") Имя:
+      input(type="text" name="firstName" placeholder="Иван" required autocomplete="off" value=(data && data.firstName) || '')
+
+    div
+      label(for="lastName") Фамилия:
+      input(type="text" name="lastName" placeholder="Иванов" required autocomplete="off" value=(data && data.lastName) || '')
+
+    div
+      label(for="username") Имя пользователя:
+      input(type="text" name="username" placeholder="Ivan" required value=(data && data.username) || '')
+
+    div
+      label(for="email") Электронная почта:
+      input(type="email" name="email" placeholder="ivan@email.com" required value=(data && data.email) || '')
+
+    div
+      label(for="password") Пароль:
+      input(type="password" name="password" placeholder="Pass!word123" required)
+
+    div
+      label(for="confirmPassword") Подтверждение пароля:
+      input(type="password" name="confirmPassword" autocomplete="new-password" required)
+
+    div
+      label
+        input(type="checkbox" name="isAcceptRules" checked=(data && data.isAcceptRules) ? true : false)
+        | Принимаю правила...
+
+    div
+      label(for="isAdult") Есть 18 лет:
+      select(name="isAdult" required)
+        option(value="") выберите
+        option(value="true" selected=(data && data.isAdult === 'true')) Да
+        option(value="false" selected=(data && data.isAdult === 'false')) Нет
+
+    div
+      label Пол:
+      div
+        label
+          input(type="radio" name="gender" value="Мужской" required checked=(data && data.gender === 'Мужской'))
+          | Мужской
+        label
+          input(type="radio" name="gender" value="Женский" required checked=(data && data.gender === 'Женский'))
+          | Женский
+
+    div
+      button(type="submit") Зарегистрироваться
+
+    if message
+      div(style="color:red; margin-top:10px") #{message}

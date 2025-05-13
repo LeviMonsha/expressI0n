@@ -1,5 +1,6 @@
 services:
   postgres:
+    container_name: postgres
     image: postgres:14
     restart: always
     environment:
@@ -11,10 +12,9 @@ services:
       - ./database/postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
       # - ./database/postgresql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - ./database/postgresql/pg_hba.conf:/etc/postgresql/common/pg_hba.conf
-    networks:
-      - app-network
 
   pgadmin:
+    container_name: pgadmin
     image: dpage/pgadmin4
     ports:
       - "8081:80"
@@ -25,37 +25,28 @@ services:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - app-network
 
   server:
+    container_name: server
     build:
       context: ./server
-    container_name: server
     ports:
       - "3000:3000"
     depends_on:
       - postgres
     environment:
       DB_HOST: postgres
-    networks:
-      - app-network
 
   nginx:
+    container_name: nginx
     build:
       context: .
       dockerfile: ./nginx/Dockerfile
-    container_name: nginx-server
     ports:
       - "80:80"
     depends_on:
       - server
-    networks:
-      - app-network
 
 volumes:
   postgres_data:
   pgadmin_data:
-
-networks:
-  app-network:

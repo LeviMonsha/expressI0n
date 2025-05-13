@@ -1,4 +1,5 @@
-const { Pool } = require("pg");
+const pkg = require("pg");
+const { Pool } = pkg;
 
 const pool = new Pool({
   user: "admin",
@@ -10,4 +11,5 @@ const pool = new Pool({
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  pool,
 };
