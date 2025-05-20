@@ -1,0 +1,32 @@
+extends /layouts/main
+
+block content
+  include /partials/nav.pug
+
+  .min-h-screen.py-8.px-4(class=theme === "dark" ? "bg-black text-white" : "bg-white text-black")
+    .max-w-md.mx-auto.rounded-lg.shadow-lg.p-6.bg-opacity-80
+      if profileData
+        h2.text-2xl.font-bold.mb-4 Профиль пользователя
+        ul.mb-6.space-y-1
+          li
+            strong Логин:
+            |  #{profileData.login}
+          li
+            strong Имя:
+            |  #{profileData.name}
+          li
+            strong Фамилия:
+            |  #{profileData.surname}
+          li
+            strong Email:
+            |  #{profileData.email}
+          li
+            strong Пол:
+            |  #{profileData.ismale ? "Мужской" : "Женский"}
+          li
+            strong Взрослый:
+            |  #{profileData.isadult ? "Да" : "Нет"}
+      else
+        .text-center
+          h2.text-xl.font-semibold.mb-2 Войдите в систему
+          p.text-gray-500 Для просмотра профиля необходимо авторизоваться.

@@ -36,6 +36,9 @@ services:
       - postgres
     environment:
       DB_HOST: postgres
+      RECAPTCHA_API_KEY: ${CAPTCHA_API_KEY}
+      RECAPTCHA_API_SECRET: ${CAPTCHA_API_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
 
   nginx:
     container_name: nginx

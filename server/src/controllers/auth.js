@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User.js");
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const config = require("../config");
+const User = require("../models/User.js");
 
 async function register(req, res) {
   const errors = validationResult(req);
@@ -62,6 +62,7 @@ async function login(req, res) {
     const user = await User.findByEmail(email);
     if (!user) {
       return res.status(400).render("pages/auth/login", {
+        recaptchaSiteKey: config.recaptcha.siteKey,
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -70,6 +71,7 @@ async function login(req, res) {
     const validPassword = await User.verifyPassword(user, password);
     if (!validPassword) {
       return res.status(400).render("pages/auth/login", {
+        recaptchaSiteKey: config.recaptcha.siteKey,
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -77,17 +79,19 @@ async function login(req, res) {
 
     const token = jwt.sign(
       { id: user.id, email: user.email, username: user.username },
-      JWT_SECRET,
+      config.jwtSecret || "jwt_secret",
       { expiresIn: "1h" }
     );
 
     res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
-    res.redirect("/dashboard");
+    res.redirect("/content/main");
   } catch (err) {
     console.error(err);
-    res
-      .status(500)
-      .render("pages/auth/login", { error: "Ошибка сервера", data: req.body });
+    res.status(500).render("pages/auth/login", {
+      recaptchaSiteKey: config.recaptcha.siteKey,
+      error: "Ошибка сервера",
+      data: req.body,
+    });
   }
 }
 

@@ -7,7 +7,8 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
-const usersRouter = require("./routes/users");
+const contentRouter = require("./routes/content");
+const adminRouter = require("./routes/admin");
 
 const server = express();
 
@@ -24,7 +25,8 @@ server.use(cookieParser());
 server.use(express.static(path.join(__dirname, "../public")));
 
 server.use("/auth", authRouter);
-server.use("/users", usersRouter);
+server.use("/content", contentRouter);
+server.use("/admin", adminRouter);
 server.use("/", indexRouter);
 
 server.use(function (req, res, next) {

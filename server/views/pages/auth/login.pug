@@ -1,23 +1,61 @@
 extends /layouts/main
 
 block content
-  h1 Вход
+  .max-w-md.mx-auto.p-6.bg-white.rounded.shadow
+    h2.text-2xl.font-bold.text-center.mb-6 Вход
 
-  if error
-    p(style="color:red") #{error}
+    form#loginForm(method="POST" action="/auth/login")
+      .mb-4
+        label.block.mb-1(for="email") Электронная почта:
+        input#wloginEmail.w-full.border.rounded.px-3.py-2(
+          type="email",
+          name="email",
+          placeholder="ivan@email.com",
+          required=true,
+          value=(data && data.email) || ''
+        )
 
-  if errors
-    ul
-      each err in errors
-        li(style="color:red") #{err.msg}
+      .mb-4
+        label.block.mb-1(for="password") Пароль:
+        input#wloginPassword.w-full.border.rounded.px-3.py-2(
+          type="password",
+          name="password",
+          placeholder="Ваш пароль",
+          required=true
+        )
 
-  form(method="POST" action="/auth/login")
-    label(for="email") Email:
-    input(type="email" name="email" required)
-    br
+      .mb-4.flex.justify-center
+        .g-recaptcha(data-sitekey="6LeF4EErAAAAADx8_WwE9COl2jcG8sRnlNQEBs_J")
 
-    label(for="password") Пароль:
-    input(type="password" name="password" required)
-    br
+      button#loginSubmit.w-full.bg-black.text-white.py-2.rounded.hover_bg-gray-700(type="submit")
+        | Войти
 
-    button(type="submit") Войти
+      if message
+        .mt-4.text-center.text-red-600 #{message}
+
+block scripts
+  script(src="https://www.google.com/recaptcha/api.js" async defer)
+  script.
+    document.addEventListener('DOMContentLoaded', function () {
+      var form = document.getElementById('loginForm');
+      form.addEventListener('submit', function (e) {
+        var email = document.getElementById('wloginEmail').value.trim();
+        var password = document.getElementById('wloginPassword').value.trim();
+        var captcha = grecaptcha.getResponse();
+        var msg = '';
+        if (!email || !password) {
+          msg = 'Пожалуйста, заполните все поля';
+        } else if (!captcha) {
+          msg = 'Пожалуйста, подтвердите, что вы не робот';
+        }
+        if (msg) {
+          e.preventDefault();
+          var old = document.querySelector('.login-error');
+          if (old) old.remove();
+          var div = document.createElement('div');
+          div.className = 'login-error mt-4 text-center text-red-600';
+          div.innerText = msg;
+          form.appendChild(div);
+        }
+      });
+    });

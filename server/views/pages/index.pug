@@ -1,40 +1,21 @@
 extends /layouts/main
 
 block content
-  h1 Добро пожаловать!
-  p
-    a(href="/auth/login") Войти
-    |  или
-    a(href="/auth/register") Зарегистрироваться
+  .flex.flex-col.items-center.justify-center.min-h-screen.gap-4.p-4
+    nav.flex.gap-4.bg-white.p-2.rounded.shadow
+      ul.flex.gap-4
+        li
+          a.flex.items-center.gap-2.px-4.py-2.rounded.hover_bg-gray-100.transition(href="/auth/login")
+            svg.w-5.h-5.fill-current(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+              path(d="M10 17l5-5-5-5v10zM4 19h2v-14H4v14z")
+            | Войти в аккаунт
+        li
+          a.flex.items-center.gap-2.px-4.py-2.rounded.hover_bg-gray-100.transition(href="/auth/register")
+            svg.w-5.h-5.fill-current(xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24")
+              path(d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z")
+            | Создать аккаунт
 
-  div(class="text-red-500 font-bold") Пример текста
+    h1.text-3xl.font-bold.text-gray-900 Добро пожаловать!
 
-  include /partials/cookie-consent.pug
-
-block scripts
-  script.
-    (function() {
-      function setCookie(name, value, days) {
-        const expires = new Date(Date.now() + days * 864e5).toUTCString();
-        document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
-      }
-
-      function getCookie(name) {
-        const matches = document.cookie.match(new RegExp(
-          '(?:^|; )' + name.replace('/([.$?*|{}()[\\]\\/\\+^])/g', '\\$1') + '=([^;]*)'
-        ));
-        return matches ? decodeURIComponent(matches[1]) : undefined;
-      }
-
-      const consentEl = document.getElementById('cookie-consent');
-      const acceptBtn = document.getElementById('accept-cookies');
-
-      if (!getCookie('user_cookie_consent')) {
-        consentEl.classList.remove('hidden');
-      }
-
-      acceptBtn.addEventListener('click', function() {
-        setCookie('user_cookie_consent', 'true', 365);
-        consentEl.classList.add('hidden');
-      });
-    })();
+    if showCookieBanner
+      include /partials/cookie-consent.pug
