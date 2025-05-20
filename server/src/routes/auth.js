@@ -7,11 +7,11 @@ const User = require("../models/User");
 const router = express.Router();
 
 router.get("/register", (req, res) => {
-  res.render("auth/register");
+  res.render("pages/auth/register");
 });
 
 router.get("/login", (req, res) => {
-  res.render("auth/login");
+  res.render("pages/auth/login");
 });
 
 // router.post(
@@ -25,7 +25,7 @@ router.get("/login", (req, res) => {
 //         .map((err) => ({ param: err.param, msg: err.msg }));
 //       return res
 //         .status(422)
-//         .render("auth/register", { errors: extractedErrors, data: req.body }); // исправлено
+//         .render("pages/auth/register", { errors: extractedErrors, data: req.body }); // исправлено
 //     }
 //     next();
 //   },
@@ -41,14 +41,14 @@ router.post("/register", async (req, res) => {
     const existingUsername = await User.findByUsername(username);
 
     if (existingEmail) {
-      return res.status(400).render("auth/register", {
+      return res.status(400).render("pages/auth/register", {
         error: "Пользователь с таким email уже существует",
         data: req.body,
       });
     }
 
     if (existingUsername) {
-      return res.status(400).render("auth/register", {
+      return res.status(400).render("pages/auth/register", {
         error: "Пользователь с таким именем пользователя уже существует",
         data: req.body,
       });
@@ -67,7 +67,7 @@ router.post("/register", async (req, res) => {
     res.redirect("/auth/login");
   } catch (err) {
     console.error(err);
-    res.status(500).render("auth/register", {
+    res.status(500).render("pages/auth/register", {
       error: "Ошибка при регистрации пользователя",
       data: req.body,
     });
@@ -80,7 +80,7 @@ router.post("/login", async (req, res) => {
 
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(400).render("auth/login", {
+      return res.status(400).render("pages/auth/login", {
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -88,7 +88,7 @@ router.post("/login", async (req, res) => {
 
     const validPassword = await User.verifyPassword(user, password);
     if (!validPassword) {
-      return res.status(400).render("auth/login", {
+      return res.status(400).render("pages/auth/login", {
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -105,7 +105,7 @@ router.post("/login", async (req, res) => {
     res.redirect("/main");
   } catch (err) {
     console.error(err);
-    res.status(500).render("auth/login", {
+    res.status(500).render("pages/auth/login", {
       error: "Ошибка сервера",
       data: req.body,
     });

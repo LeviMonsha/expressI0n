@@ -4,7 +4,7 @@ function authMiddleware(req, res, next) {
   const token = req.cookies.token;
   if (!token) {
     if (req.accepts("html")) {
-      return res.redirect("auth/login");
+      return res.redirect("/auth/login");
     } else {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -16,7 +16,7 @@ function authMiddleware(req, res, next) {
     next();
   } catch (err) {
     if (req.accepts("html")) {
-      return res.redirect("auth/login");
+      return res.redirect("/auth/login");
     } else {
       return res.status(401).json({ error: "Invalid token" });
     }

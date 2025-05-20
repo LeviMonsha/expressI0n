@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 async function register(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).render("auth/register", {
+    return res.status(422).render("pages/auth/register", {
       errors: errors.array(),
       data: req.body,
     });
@@ -20,13 +20,13 @@ async function register(req, res) {
     const existingLogin = await User.findByUsername(login);
 
     if (existingEmail) {
-      return res.status(400).render("auth/register", {
+      return res.status(400).render("pages/auth/register", {
         error: "Пользователь с таким email уже существует",
         data: req.body,
       });
     }
     if (existingLogin) {
-      return res.status(400).render("auth/register", {
+      return res.status(400).render("pages/auth/register", {
         error: "Пользователь с таким логином уже существует",
         data: req.body,
       });
@@ -45,10 +45,10 @@ async function register(req, res) {
       isDarkTheme: false,
     });
 
-    res.redirect("auth/login");
+    res.redirect("/auth/login");
   } catch (err) {
     console.error(err);
-    res.status(500).render("auth/register", {
+    res.status(500).render("pages/auth/register", {
       error: "Ошибка сервера",
       data: req.body,
     });
@@ -61,7 +61,7 @@ async function login(req, res) {
   try {
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(400).render("auth/login", {
+      return res.status(400).render("pages/auth/login", {
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -69,7 +69,7 @@ async function login(req, res) {
 
     const validPassword = await User.verifyPassword(user, password);
     if (!validPassword) {
-      return res.status(400).render("auth/login", {
+      return res.status(400).render("pages/auth/login", {
         error: "Неверный email или пароль",
         data: req.body,
       });
@@ -87,7 +87,7 @@ async function login(req, res) {
     console.error(err);
     res
       .status(500)
-      .render("auth/login", { error: "Ошибка сервера", data: req.body });
+      .render("pages/auth/login", { error: "Ошибка сервера", data: req.body });
   }
 }
 

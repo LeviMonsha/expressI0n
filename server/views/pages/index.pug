@@ -1,0 +1,40 @@
+extends /layouts/main
+
+block content
+  h1 Добро пожаловать!
+  p
+    a(href="/auth/login") Войти
+    |  или
+    a(href="/auth/register") Зарегистрироваться
+
+  div(class="text-red-500 font-bold") Пример текста
+
+  include /partials/cookie-consent.pug
+
+block scripts
+  script.
+    (function() {
+      function setCookie(name, value, days) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+      }
+
+      function getCookie(name) {
+        const matches = document.cookie.match(new RegExp(
+          '(?:^|; )' + name.replace('/([.$?*|{}()[\\]\\/\\+^])/g', '\\$1') + '=([^;]*)'
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+      }
+
+      const consentEl = document.getElementById('cookie-consent');
+      const acceptBtn = document.getElementById('accept-cookies');
+
+      if (!getCookie('user_cookie_consent')) {
+        consentEl.classList.remove('hidden');
+      }
+
+      acceptBtn.addEventListener('click', function() {
+        setCookie('user_cookie_consent', 'true', 365);
+        consentEl.classList.add('hidden');
+      });
+    })();

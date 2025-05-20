@@ -1,5 +1,6 @@
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx,html}"],
+  separator: "_",
+  content: ["./views/**/*.{pug,js,jsx,ts,tsx,html}"],
   theme: {
     extend: {},
   },

@@ -11,8 +11,9 @@ const usersRouter = require("./routes/users");
 
 const server = express();
 
-server.set("views", path.join(__dirname, "views"));
+server.set("views", path.join(__dirname, "../views"));
 server.set("view engine", "pug");
+server.locals.basedir = server.get("views");
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ server.use(logger("dev"));
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(cookieParser());
-server.use(express.static(path.join(__dirname, "public")));
+server.use(express.static(path.join(__dirname, "../public")));
 
 server.use("/auth", authRouter);
 server.use("/users", usersRouter);
@@ -41,7 +42,7 @@ server.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   res.status(err.status || 500);
-  res.render("error");
+  res.render("components/messages/error");
 });
 
 module.exports = server;
