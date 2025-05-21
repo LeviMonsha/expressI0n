@@ -4,38 +4,7 @@ const AdminController = require("../controllers/admin");
 const authMiddleware = require("../middleware/auth");
 const themeMiddleware = require("../middleware/theme");
 
-router.get("/", authMiddleware, themeMiddleware, (req, res) => {
-  res.render("pages/content/admin");
-});
-
-router.get("/total-users", async (req, res) => {
-  try {
-    const count = await AdminController.findTotalUsers();
-    res.json({ count });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.get("/last-month-users", async (req, res) => {
-  try {
-    const count = await AdminController.findLastMonthUsers();
-    res.json({ count });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.get("/last-user", async (req, res) => {
-  try {
-    const user = await AdminController.findLastUser();
-    res.json(user);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.get("/statistics", async (req, res) => {
+router.get("/", authMiddleware, themeMiddleware, async (req, res) => {
   try {
     const [totalUsers, lastMonthUsers, lastUser] = await Promise.all([
       AdminController.findTotalUsers(),
@@ -45,7 +14,7 @@ router.get("/statistics", async (req, res) => {
 
     const theme = req.query.theme === "dark" ? "dark" : "light";
 
-    res.render("statistics", {
+    res.render("pages/content/admin", {
       totalUsers,
       lastMonthUsers,
       lastUser,
@@ -53,7 +22,8 @@ router.get("/statistics", async (req, res) => {
       error: null,
     });
   } catch (error) {
-    res.render("statistics", {
+    console.error("Ошибка загрузки статистики:", error);
+    res.render("pages/content/admin", {
       totalUsers: 0,
       lastMonthUsers: 0,
       lastUser: {},

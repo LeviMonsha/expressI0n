@@ -1,18 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const User = require("../models/User.js");
+
 const authMiddleware = require("../middleware/auth");
 const themeMiddleware = require("../middleware/theme");
-
-async function getUserProfile(userId) {
-  return {
-    login: "ivan123",
-    name: "Иван",
-    surname: "Иванов",
-    email: "ivan@example.com",
-    ismale: true,
-    isadult: true,
-  };
-}
 
 router.get("/main", themeMiddleware, (req, res) => {
   res.render("pages/content/main", { theme: res.locals.theme });
@@ -20,10 +11,29 @@ router.get("/main", themeMiddleware, (req, res) => {
 
 router.get("/profile", authMiddleware, themeMiddleware, async (req, res) => {
   try {
-    const profileData = await getUserProfile(req.user.id);
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).render("pages/content/profile", {
+        profileData: null,
+        theme: res.locals.theme,
+        error: "Пользователь не найден",
+      });
+    }
+
+    const profileData = {
+      login: user.username,
+      name: user.first_name,
+      surname: user.last_name,
+      email: user.email,
+      ismale: user.gender === "Мужской",
+      isadult: user.is_adult,
+    };
+
     res.render("pages/content/profile", {
       profileData,
       theme: res.locals.theme,
+      error: null,
     });
   } catch (err) {
     console.error(err);

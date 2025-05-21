@@ -50,7 +50,6 @@ router.post("/login", async (req, res) => {
     //   });
     // }
 
-    // Используем контроллер login, который теперь возвращает accessToken в JSON
     await login(req, res);
   } catch (err) {
     console.error(err);

@@ -22,4 +22,12 @@ block content
         if lastUser && Object.keys(lastUser).length > 0
           div.border.border-gray-400.rounded-md.p-4.mt-2
             p ID: #{lastUser.id}
+            p Логин: #{lastUser.username}
+            p Email: #{lastUser.email}
+            p Имя: #{lastUser.first_name}
+            p Фамилия: #{lastUser.last_name}
+            p Пол: #{lastUser.gender}
+            p Взрослый: #{lastUser.is_adult ? "Да" : "Нет"}
             p Дата регистрации: #{new Date(lastUser.created).toLocaleString()}
+        else
+          p Нет данных о последнем пользователе

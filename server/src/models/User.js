@@ -36,6 +36,11 @@ class User {
     return result.rows[0];
   }
 
+  static async findById(id) {
+    const res = await db.query("SELECT * FROM users WHERE id = $1", [id]);
+    return res.rows[0];
+  }
+
   static async findByEmail(email) {
     const res = await db.query("SELECT * FROM users WHERE email = $1", [email]);
     return res.rows[0];
