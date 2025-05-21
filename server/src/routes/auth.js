@@ -1,9 +1,7 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
-const registrationValidationRules = require("../validation/registration-rules");
 const { validationResult } = require("express-validator");
-const { register } = require("../controllers/auth");
-const User = require("../models/User");
+const registrationValidationRules = require("../validation/registration-rules");
+const { register, login, logout, token } = require("../controllers/auth");
 const config = require("../config");
 
 const router = express.Router();
@@ -19,64 +17,41 @@ router.get("/login", (req, res) => {
   });
 });
 
-router.post(
-  "/register",
-  registrationValidationRules,
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const extractedErrors = errors
-        .array()
-        .map((err) => ({ param: err.param, msg: err.msg }));
-      return res.status(422).render("pages/auth/register", {
-        errors: extractedErrors,
-        data: req.body,
-      });
-    }
-    next();
-  },
-  register
-);
+// router.post(
+//   "/register",
+//   registrationValidationRules,
+//   (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       const extractedErrors = errors
+//         .array()
+//         .map((err) => ({ param: err.param, msg: err.msg }));
+//       return res.status(422).render("pages/auth/register", {
+//         errors: extractedErrors,
+//         data: req.body,
+//       });
+//     }
+//     next();
+//   },
+//   register
+// );
+router.post("/register", register);
 
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const captchaResponse = req.body["g-recaptcha-response"];
-    if (!captchaResponse) {
-      return res.status(400).render("pages/auth/login", {
-        recaptchaSiteKey: config.recaptcha.siteKey,
-        message: "Пожалуйста, подтвердите, что вы не робот",
-        data: req.body,
-      });
-    }
+    // const captchaResponse = req.body["g-recaptcha-response"];
+    // if (!captchaResponse) {
+    //   return res.status(400).render("pages/auth/login", {
+    //     recaptchaSiteKey: config.recaptcha.siteKey,
+    //     message: "Пожалуйста, подтвердите, что вы не робот",
+    //     data: req.body,
+    //   });
+    // }
 
-    const user = await User.findByEmail(email);
-    if (!user) {
-      return res.status(400).render("pages/auth/login", {
-        recaptchaSiteKey: config.recaptcha.siteKey,
-        message: "Неверный email или пароль",
-        data: req.body,
-      });
-    }
-
-    const validPassword = await User.verifyPassword(user, password);
-    if (!validPassword) {
-      return res.status(400).render("pages/auth/login", {
-        recaptchaSiteKey: config.recaptcha.siteKey,
-        message: "Неверный email или пароль",
-        data: req.body,
-      });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email, username: user.username },
-      config.jwtSecret || "jwt_secret",
-      { expiresIn: "1h" }
-    );
-
-    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
-    res.redirect("/content/main");
+    // Используем контроллер login, который теперь возвращает accessToken в JSON
+    await login(req, res);
   } catch (err) {
     console.error(err);
     res.status(500).render("pages/auth/login", {
@@ -86,5 +61,9 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+router.post("/token", token);
+
+router.post("/logout", logout);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const pkg = require("pg");
 const { Pool } = pkg;
+const config = require("./config");
 
 const pool = new Pool({
   user: "admin",

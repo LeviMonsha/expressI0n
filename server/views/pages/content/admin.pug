@@ -1,0 +1,25 @@
+extends /layouts/main
+
+block content
+  include /partials/nav.pug
+
+  .min-h-screen.py-8.px-4(class=theme === "dark" ? "bg-black text-white" : "bg-white text-black")
+    .max-w-md.mx-auto.rounded-lg.shadow-lg.p-6.bg-opacity-80
+      h2.text-2xl.font-bold.mb-4 Статистика пользователей
+
+      if error
+        p.text-red-500.mb-4= error
+      else
+        p.mb-2
+          strong Всего зарегистрировано:
+          |  #{totalUsers}
+        p.mb-2
+          strong За последний месяц:
+          |  #{lastMonthUsers}
+        p.mb-2
+          strong Последний пользователь:
+
+        if lastUser && Object.keys(lastUser).length > 0
+          div.border.border-gray-400.rounded-md.p-4.mt-2
+            p ID: #{lastUser.id}
+            p Дата регистрации: #{new Date(lastUser.created).toLocaleString()}

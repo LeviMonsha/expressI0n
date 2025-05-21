@@ -1,8 +1,9 @@
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
-
 const config = require("../config");
 const User = require("../models/User.js");
+
+let refreshTokens = [];
 
 async function register(req, res) {
   const errors = validationResult(req);
@@ -12,12 +13,13 @@ async function register(req, res) {
       data: req.body,
     });
   }
-
-  const { firstName, lastName, email, password, login, age, gender } = req.body;
+  console.log(req.body);
+  const { firstName, lastName, email, password, username, isAdult, gender } =
+    req.body;
 
   try {
     const existingEmail = await User.findByEmail(email);
-    const existingLogin = await User.findByUsername(login);
+    const existingUsername = await User.findByUsername(username);
 
     if (existingEmail) {
       return res.status(400).render("pages/auth/register", {
@@ -25,21 +27,22 @@ async function register(req, res) {
         data: req.body,
       });
     }
-    if (existingLogin) {
+
+    if (existingUsername) {
       return res.status(400).render("pages/auth/register", {
         error: "Пользователь с таким логином уже существует",
         data: req.body,
       });
     }
 
-    const isAdult = age === "yes";
+    const isAdultOut = isAdult === "true";
 
     await User.create({
-      username: login,
+      username,
       email,
       firstName,
       lastName,
-      isAdult,
+      isAdult: isAdultOut,
       gender,
       password,
       isDarkTheme: false,
@@ -77,13 +80,34 @@ async function login(req, res) {
       });
     }
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { id: user.id, email: user.email, username: user.username },
-      config.jwtSecret || "jwt_secret",
-      { expiresIn: "1h" }
+      config.jwtAccessSecret || "jwt_access_secret",
+      { expiresIn: "15m" }
     );
 
-    res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
+    const refreshToken = jwt.sign(
+      { id: user.id, email: user.email, username: user.username },
+      config.jwtRefreshSecret || "jwt_refresh_secret",
+      { expiresIn: "7d" }
+    );
+
+    refreshTokens.push(refreshToken);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/auth/token",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 15 * 60 * 1000,
+      sameSite: "lax",
+    });
+
     res.redirect("/content/main");
   } catch (err) {
     console.error(err);
@@ -95,9 +119,34 @@ async function login(req, res) {
   }
 }
 
+function token(req, res) {
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) return res.status(401).json({ error: "No refresh token" });
+  if (!refreshTokens.includes(refreshToken))
+    return res.status(403).json({ error: "Invalid refresh token" });
+
+  jwt.verify(
+    refreshToken,
+    config.jwtRefreshSecret || "jwt_refresh_secret",
+    (err, user) => {
+      if (err) return res.status(403).json({ error: "Invalid refresh token" });
+
+      const accessToken = jwt.sign(
+        { id: user.id, email: user.email, username: user.username },
+        config.jwtAccessSecret || "jwt_access_secret",
+        { expiresIn: "15m" }
+      );
+
+      res.json({ accessToken });
+    }
+  );
+}
+
 function logout(req, res) {
-  res.clearCookie("token");
+  const refreshToken = req.cookies.refreshToken;
+  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+  res.clearCookie("refreshToken", { path: "/auth/token" });
   res.redirect("/");
 }
 
-module.exports = { register, login, logout };
+module.exports = { register, login, logout, token };

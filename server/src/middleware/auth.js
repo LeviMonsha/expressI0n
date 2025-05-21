@@ -2,25 +2,21 @@ const jwt = require("jsonwebtoken");
 const config = require("../config");
 
 function authMiddleware(req, res, next) {
-  const token = req.cookies.token;
+  const token = req.cookies.accessToken;
+
   if (!token) {
-    if (req.accepts("html")) {
-      return res.redirect("/auth/login");
-    } else {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    return res.redirect("/auth/login");
   }
 
   try {
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(
+      token,
+      config.jwtAccessSecret || "jwt_access_secret"
+    );
     req.user = decoded;
     next();
   } catch (err) {
-    if (req.accepts("html")) {
-      return res.redirect("/auth/login");
-    } else {
-      return res.status(401).json({ error: "Invalid token" });
-    }
+    return res.redirect("/auth/login");
   }
 }
 

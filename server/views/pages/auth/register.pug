@@ -4,7 +4,7 @@ block content
   .max-w-md.mx-auto.p-6.bg-white.rounded.shadow
     h2.text-2xl.font-bold.text-center.mb-6 Регистрация
 
-    form#registerForm
+    form#registerForm(method="POST" action="/auth/register")
       .mb-4
         label.block.mb-1(for="firstName") Имя:
         input#firstName.w-full.border.rounded.px-3.py-2(type="text" name="firstName" placeholder="Иван" required autocomplete="off")

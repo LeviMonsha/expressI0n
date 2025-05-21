@@ -3,4 +3,6 @@ extends /layouts/main
 block content
   include /partials/nav.pug
   
-  h1 Контент
+  .min-h-screen.py-8.px-4(class=theme === "dark" ? "bg-black text-white" : "bg-white text-black")
+    .max-w-md.mx-auto.rounded-lg.shadow-lg.p-6.bg-opacity-80
+      h1 Контент
