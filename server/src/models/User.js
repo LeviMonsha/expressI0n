@@ -57,6 +57,19 @@ class User {
     return bcrypt.compare(password, user.password_hash);
   }
 
+  static async findByLastName(surname) {
+    const query = `
+    SELECT id, username, first_name, last_name, email, gender, is_adult
+    FROM users
+    WHERE LOWER(last_name) LIKE LOWER($1)
+    ORDER BY last_name, first_name
+    LIMIT 10
+  `;
+    const values = [`%${surname}%`];
+    const res = await db.query(query, values);
+    return res.rows;
+  }
+
   static async updateThemePreference(userId, isDarkTheme) {
     const res = await db.query(
       "UPDATE users SET is_dark_theme = $1 WHERE id = $2 RETURNING is_dark_theme",

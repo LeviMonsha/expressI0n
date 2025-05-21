@@ -2,7 +2,53 @@ extends /layouts/main
 
 block content
   include /partials/nav.pug
-  
+
   .min-h-screen.py-8.px-4(class=theme === "dark" ? "bg-black text-white" : "bg-white text-black")
     .max-w-md.mx-auto.rounded-lg.shadow-lg.p-6.bg-opacity-80
-      h1 Контент
+      h1.text-2xl.font-bold.mb-4 Поиск
+
+      input#searchInput(type="text" placeholder="Введите фамилию для поиска..."
+      class=`
+        w-full p-2 border rounded mb-4
+        ${theme === 'dark' ? 'bg-gray-800 text-white placeholder-gray-400 border-gray-600' : 'bg-white text-black placeholder-gray-600 border-gray-300'}
+      `)
+
+      ul#resultsList.space-y-2
+        // Здесь будут результаты поиска
+
+block scripts
+  script.
+    const searchInput = document.getElementById('searchInput');
+    const resultsList = document.getElementById('resultsList');
+    let debounceTimeout;
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      const query = searchInput.value.trim();
+
+      if (query.length === 0) {
+        resultsList.innerHTML = '';
+        return;
+      }
+
+      debounceTimeout = setTimeout(() => {
+        fetch(`/content/search-users?surname=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(users => {
+            resultsList.innerHTML = '';
+            if (users.length === 0) {
+              resultsList.innerHTML = '<li>Пользователи не найдены</li>';
+              return;
+            }
+            users.forEach(user => {
+              const li = document.createElement('li');
+              li.textContent = `${user.first_name} ${user.last_name} (логин: ${user.username})`;
+              resultsList.appendChild(li);
+            });
+          })
+          .catch(err => {
+            console.error('Ошибка при поиске:', err);
+            resultsList.innerHTML = '<li>Ошибка при поиске</li>';
+          });
+      }, 300);
+    });

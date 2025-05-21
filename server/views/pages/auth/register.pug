@@ -7,50 +7,79 @@ block content
     form#registerForm(method="POST" action="/auth/register")
       .mb-4
         label.block.mb-1(for="firstName") Имя:
-        input#firstName.w-full.border.rounded.px-3.py-2(type="text" name="firstName" placeholder="Иван" required autocomplete="off")
+        input#firstName.w-full.border.rounded.px-3.py-2(
+          type="text" name="firstName" placeholder="Иван" required autocomplete="off" 
+          value=(data && data.firstName) || ""
+        )
+        if errors && errors.firstName
+          div.text-red-600.text-sm.mt-1= errors.firstName
 
       .mb-4
         label.block.mb-1(for="lastName") Фамилия:
-        input#lastName.w-full.border.rounded.px-3.py-2(type="text" name="lastName" placeholder="Иванов" required autocomplete="off")
+        input#lastName.w-full.border.rounded.px-3.py-2(
+          type="text" name="lastName" placeholder="Иванов" required autocomplete="off"
+          value=(data && data.lastName) || ""
+        )
+        if errors && errors.lastName
+          div.text-red-600.text-sm.mt-1= errors.lastName
 
       .mb-4
         label.block.mb-1(for="username") Имя пользователя:
-        input#username.w-full.border.rounded.px-3.py-2(type="text" name="username" placeholder="Ivan" required)
+        input#username.w-full.border.rounded.px-3.py-2(
+          type="text" name="username" placeholder="Ivan" required
+          value=(data && data.username) || ""
+        )
+        if errors && errors.username
+          div.text-red-600.text-sm.mt-1= errors.username
 
       .mb-4
         label.block.mb-1(for="email") Электронная почта:
-        input#email.w-full.border.rounded.px-3.py-2(type="email" name="email" placeholder="ivan@email.com" required)
+        input#email.w-full.border.rounded.px-3.py-2(
+          type="email" name="email" placeholder="ivan@email.com" required
+          value=(data && data.email) || ""
+        )
+        if errors && errors.email
+          div.text-red-600.text-sm.mt-1= errors.email
 
       .mb-4
         label.block.mb-1(for="password") Пароль:
         input#password.w-full.border.rounded.px-3.py-2(type="password" name="password" placeholder="Pass!word123" required)
+        if errors && errors.password
+          div.text-red-600.text-sm.mt-1= errors.password
 
       .mb-4
         label.block.mb-1(for="confirmPassword") Подтверждение пароля:
         input#confirmPassword.w-full.border.rounded.px-3.py-2(type="password" name="confirmPassword" placeholder="Повторите пароль" required autocomplete="new-password")
+        if errors && errors.confirmPassword
+          div.text-red-600.text-sm.mt-1= errors.confirmPassword
 
       .mb-4.flex.items-center
         label.flex.items-center.cursor-pointer
-          input#isAcceptRules.mr-2(type="checkbox" name="isAcceptRules")
+          input#isAcceptRules.mr-2(type="checkbox" name="isAcceptRules" checked=(data && data.isAcceptRules ? true : false))
           span Принимаю правила...
 
       .mb-4
         label.block.mb-1(for="isAdult") Есть 18 лет:
         select#isAdult.w-full.border.rounded.px-3.py-2(name="isAdult" required)
           option(value="") выберите
-          option(value="true") Да
-          option(value="false") Нет
+          option(value="true" selected=(data && data.isAdult === "true" ? true : false)) Да
+          option(value="false" selected=(data && data.isAdult === "false" ? true : false)) Нет
+        if errors && errors.isAdult
+          div.text-red-600.text-sm.mt-1= errors.isAdult
 
       .mb-4
         label.block.mb-1 Пол:
         .flex.space-x-6
           label.flex.items-center.cursor-pointer
-            input(type="radio" name="gender" value="Мужской" required class="mr-2")
+            input(type="radio" name="gender" value="Мужской" required class="mr-2" checked=(data && data.gender === "Мужской" ? true : false))
             span Мужской
           label.flex.items-center.cursor-pointer
-            input(type="radio" name="gender" value="Женский" required class="mr-2")
+            input(type="radio" name="gender" value="Женский" required class="mr-2" checked=(data && data.gender === "Женский" ? true : false))
             span Женский
+        if errors && errors.gender
+          div.text-red-600.text-sm.mt-1= errors.gender
 
       button#submitBtn.w-full.bg-black.text-white.py-2.rounded.hover_bg-gray-700(type="submit") Зарегистрироваться
 
-      div#message.mt-4.text-center.text-red-600
+      if errors && errors.general
+        div#message.mt-4.text-center.text-red-600= errors.general

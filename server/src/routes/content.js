@@ -5,11 +5,26 @@ const User = require("../models/User.js");
 const authMiddleware = require("../middleware/auth");
 const themeMiddleware = require("../middleware/theme");
 
-router.get("/main", themeMiddleware, (req, res) => {
+router.get("/main", (req, res) => {
   res.render("pages/content/main", { theme: res.locals.theme });
 });
 
-router.get("/profile", authMiddleware, themeMiddleware, async (req, res) => {
+router.get("/search-users", authMiddleware, async (req, res) => {
+  try {
+    const surname = req.query.surname;
+    if (!surname) {
+      return res.json([]);
+    }
+
+    const users = await User.findByLastName(surname);
+    res.json(users);
+  } catch (err) {
+    console.error("Ошибка поиска пользователей:", err);
+    res.status(500).json({ error: "Ошибка сервера" });
+  }
+});
+
+router.get("/profile", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -41,7 +56,7 @@ router.get("/profile", authMiddleware, themeMiddleware, async (req, res) => {
   }
 });
 
-router.get("/settings", themeMiddleware, (req, res) => {
+router.get("/settings", (req, res) => {
   res.render("pages/content/settings", { theme: res.locals.theme });
 });
 

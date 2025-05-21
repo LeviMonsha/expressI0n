@@ -23,7 +23,7 @@ const registrationValidationRules = [
 
   body("email").isEmail().withMessage("Неверный формат email").normalizeEmail(),
 
-  body("login")
+  body("username")
     .isLength({ min: 6 })
     .withMessage("Логин должен быть не менее 6 символов"),
 
@@ -46,9 +46,9 @@ const registrationValidationRules = [
     return true;
   }),
 
-  body("age").isIn(["yes", "no"]).withMessage("Выберите возраст"),
+  body("isAdult").isIn(["true", "false"]).withMessage("Выберите возраст"),
 
-  body("gender").isIn(["male", "female"]).withMessage("Выберите пол"),
+  body("gender").isIn(["Мужской", "Женский"]).withMessage("Выберите пол"),
 ];
 
 module.exports = registrationValidationRules;

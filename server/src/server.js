@@ -4,6 +4,7 @@ const path = require("path");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const themeMiddleware = require("./middleware/theme");
 
 const indexRouter = require("./routes/index");
 const authRouter = require("./routes/auth");
@@ -23,6 +24,7 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
 server.use(cookieParser());
 server.use(express.static(path.join(__dirname, "../public")));
+server.use(themeMiddleware);
 
 server.use("/auth", authRouter);
 server.use("/content", contentRouter);
